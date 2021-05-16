@@ -17,11 +17,11 @@ class Config
         "db_charset"   => "utf8",
 
         // CUSTOM SETTINGS
-        "server_name"    => "server",
+        "server_name"    => "lastwow",
         "server_version" => "2.4.3",
         "server_type"    => "Blizzlike",
         "server_exp"     => "5x",
-        "server_realm"   => "logon.server.co.uk",
+        "server_realm"   => "lastwow.org",
         "server_detail"  => "2.4.3 Private Server"
     );
 
