@@ -6,7 +6,7 @@ class MainModel extends Database
 {
 	public function check_username($username)
 	{
-		$stmt = $this->db->prepare("SELECT username FROM realmd.account WHERE username = ?");
+		$stmt = $this->db->prepare("SELECT username FROM o_realmd.account WHERE username = ?");
 		$stmt->bindValue(1, $username);
 		$stmt->execute();
 		return $stmt->rowCount();
@@ -14,7 +14,7 @@ class MainModel extends Database
 	
     public function insert_account($username, $sha_pass_hash_, $email, $expansion, $token_key)
     {
-        $stmt = $this->db->prepare("INSERT INTO realmd.account(username, sha_pass_hash, email, expansion, security_flag, token_key) VALUES(?, ?, ?, ?, ?, ?)");
+        $stmt = $this->db->prepare("INSERT INTO o_realmd.account(username, sha_pass_hash, email, expansion, security_flag, token_key) VALUES(?, ?, ?, ?, ?, ?)");
         $stmt->bindValue(1, $username);
         $stmt->bindValue(2, $sha_pass_hash_);
         $stmt->bindValue(3, $email);
