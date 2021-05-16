@@ -26,7 +26,7 @@ class MainModel extends Database
 	
 	public function online_players()
 	{
-		$stmt = $this->db->prepare("SELECT * FROM characters.characters WHERE online = ?");
+		$stmt = $this->db->prepare("SELECT * FROM o_characters.characters WHERE online = ?");
 		$stmt->bindValue(1, '1');
 		$stmt->execute();
 		return $stmt->rowCount();
