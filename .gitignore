@@ -1,0 +1,40 @@
+
+# build directories
+build*/
+
+# backups
+*.orig
+*.bak
+*~
+*.back
+*.old
+
+# patch rejects
+#*.rej
+
+# K-Develop files
+*.kdev*
+
+# patches
+*.patch
+*.diff
+
+# vim files
+*.vim
+*.ycm*
+
+# Mercurial files (foreign dev)
+.hg/
+.hgignore
+.hgtags
+
+# database documentation - generated files
+doc/doxygen/Database/*.dox
+
+# IDEs and Tools
+.idea/
+.nbproject/
+.project
+
+# Modules
+modules/*

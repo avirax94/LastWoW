@@ -1,0 +1,112 @@
+dist: xenial
+language: cpp
+# compiler: gcc
+
+# whitelisted packages can be obtained quickly without downloading
+# doxygen is out of date, tho so we download its binaries
+addons:
+  apt:
+    packages:
+      - cmake
+      - build-essential
+      - cppcheck
+      - git
+      - make
+      - binutils-dev
+      - libiberty-dev
+      - openssl
+      - libssl-dev
+      - zlib1g-dev
+      - zip
+      - unzip
+
+git:
+  depth: 1
+
+before_install:
+  - sudo apt-get -qq install mariadb-server libace-6.* libace-dev
+  - if [[ $TRAVIS_PULL_REQUEST == 'true' ]]; then exit; fi
+
+# build matrix
+matrix:
+  include:
+    # linux builds without Eluna gcc x64
+    - os: linux
+      arch: amd64
+      name: "Eluna Disabled gcc x64"
+      compiler: gcc
+      env:
+        - CC=gcc-7
+        - CXX=g++-7
+      install:
+        - mkdir build
+        - mkdir _install
+        - cd build
+        - cmake .. -DCMAKE_INSTALL_PREFIX=../_install -DCMAKE_C_COMPILER="gcc" -DCMAKE_CXX_COMPILER="g++" -DSERVERS=1 -DTOOLS=1 -DSCRIPTS=1 -DWITH_DOCS=1 -DWITH_WARNINGS=0 -DELUNA=0 -DWITH_COREDEBUG=0
+        # we have 1.5 cpu so 2 jobs at a time are sufficient
+        - make -j2
+        - make install 
+        
+    # linux builds with Eluna gcc x64
+    - os: linux
+      arch: amd64
+      name: "Eluna Enabled gcc x64"
+      compiler: gcc
+      env:
+        - CC=gcc-7
+        - CXX=g++-7
+      install:
+        - mkdir build
+        - mkdir _install
+        - cd build
+        - cmake .. -DCMAKE_INSTALL_PREFIX=../_install -DCMAKE_C_COMPILER="gcc" -DCMAKE_CXX_COMPILER="g++" -DSERVERS=1 -DTOOLS=1 -DSCRIPTS=1 -DWITH_DOCS=1 -DWITH_WARNINGS=0 -DELUNA=1 -DWITH_COREDEBUG=0
+        # we have 1.5 cpu so 2 jobs at a time are sufficient
+        - make -j2
+        - make install 
+    # linux builds without Eluna clang x64
+    - os: linux
+      arch: amd64
+      name: "Eluna Disabled clang x64"
+      compiler: clang
+      env:
+        - CC=clang
+        - CXX=clang++
+      install:
+        - mkdir build
+        - mkdir _install
+        - cd build
+        - cmake .. -DCMAKE_INSTALL_PREFIX=../_install -DCMAKE_C_COMPILER="clang" -DCMAKE_CXX_COMPILER="clang++" -DSERVERS=1 -DTOOLS=1 -DSCRIPTS=1 -DWITH_DOCS=1 -DWITH_WARNINGS=0 -DELUNA=0 -DWITH_COREDEBUG=0
+        # we have 1.5 cpu so 2 jobs at a time are sufficient
+        - make -j2
+        - make install
+        
+    # linux builds with Eluna clang x64
+    - os: linux
+      arch: amd64
+      name: "Eluna Enabled clang x64"
+      compiler: clang
+      env:
+        - CC=clang
+        - CXX=clang++
+      install:
+        - mkdir build
+        - mkdir _install
+        - cd build
+        - cmake .. -DCMAKE_INSTALL_PREFIX=../_install -DCMAKE_C_COMPILER="clang" -DCMAKE_CXX_COMPILER="clang++" -DSERVERS=1 -DTOOLS=1 -DSCRIPTS=1 -DWITH_DOCS=1 -DWITH_WARNINGS=0 -DELUNA=1 -DWITH_COREDEBUG=0
+        # we have 1.5 cpu so 2 jobs at a time are sufficient
+        - make -j2  
+        - make install        
+        
+# apply all updates to db and catch possible errors
+script:
+  - cd $TRAVIS_BUILD_DIR/sql
+  - sudo mysql -u root --password='' < create/create_mysql.sql
+  - mysql -u oregon -poregon realmd < base/realmd.sql
+  - mysql -u oregon -poregon characters < base/characters.sql
+  # mysql -u oregon -poregon world < base/world.sql
+  - curl -L --retry 3 -o database_06_11_2020.zip https://github.com/talamortis/OregonCore/releases/download/v1.0/database_06_11_2020.zip
+  - unzip database_06_11_2020.zip
+  - mysql -u oregon -poregon world < database_06_11_2020.sql
+  - cat updates/realmd/*.sql | mysql -u oregon -poregon realmd
+  - cat updates/characters/*.sql | mysql -u oregon -poregon characters
+  - cat updates/world/*.sql | mysql -u oregon -poregon world
