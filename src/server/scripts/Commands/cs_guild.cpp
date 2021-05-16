@@ -30,6 +30,19 @@ public:
     {
         if (!*args)
             return false;
+		
+		// if not guild name only (in "") then player name
+        Player* target;
+        if (!handler->extractPlayerTarget(*args != '"' ? (char*)args : nullptr, &target))
+            return false;
+
+        char* tailStr = *args != '"' ? strtok(nullptr, "") : (char*)args;
+        if (!tailStr)
+            return false;
+
+        char* guildStr = handler->extractQuotedArg(tailStr);
+        if (!guildStr)
+            return false;
 
         char* lname = strtok((char*)args, " ");
         char* gname = strtok(NULL, "");
@@ -57,11 +70,12 @@ public:
         if (player->GetGuildId())
         {
             handler->SendSysMessage(LANG_PLAYER_IN_GUILD);
+			handler->SetSentErrorMessage(true);
             return true;
         }
 
         Guild* guild = new Guild;
-        if (!guild->Create(player, guildname))
+        if (!guild->Create(target, guildname))
         {
             delete guild;
             handler->SendSysMessage(LANG_GUILD_NOT_CREATED);
